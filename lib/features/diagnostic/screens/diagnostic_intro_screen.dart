@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_text_styles.dart';
+import '../../../core/router/app_router.dart';
+
+class DiagnosticIntroScreen extends StatelessWidget {
+  final String subject;
+
+  const DiagnosticIntroScreen({super.key, required this.subject});
+
+  String get _levelLabel {
+    switch (subject) {
+      case 'primary':
+        return 'Primary School';
+      case 'secondary':
+        return 'Secondary School';
+      case 'university':
+        return 'University';
+      case 'skills':
+        return 'Skills & Career';
+      default:
+        return subject;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 48),
+
+              // Illustration
+              Center(
+                child: Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.psychology_rounded,
+                        size: 48,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ).animate().fadeIn(duration: 500.ms).scale(
+                    begin: const Offset(0.8, 0.8),
+                    curve: Curves.easeOutBack,
+                  ),
+
+              const SizedBox(height: 48),
+
+              // Level chip
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySurface,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  _levelLabel,
+                  style: AppTextStyles.labelMedium
+                      .copyWith(color: AppColors.primary),
+                ),
+              ).animate().fadeIn(delay: 200.ms),
+
+              const SizedBox(height: 16),
+
+              Text(AppStrings.diagnosticTitle,
+                      style: AppTextStyles.displayMedium)
+                  .animate()
+                  .fadeIn(delay: 250.ms)
+                  .slideY(begin: 0.2, end: 0),
+
+              const SizedBox(height: 16),
+
+              Text(AppStrings.diagnosticSubtitle,
+                      style: AppTextStyles.bodyLarge)
+                  .animate()
+                  .fadeIn(delay: 300.ms),
+
+              const SizedBox(height: 40),
+
+              // What to expect
+              _buildExpectationItem(
+                icon: Icons.timer_outlined,
+                title: '5–8 minutes',
+                subtitle: 'Quick, focused questions',
+                delay: 350,
+              ),
+              const SizedBox(height: 16),
+              _buildExpectationItem(
+                icon: Icons.lightbulb_outline_rounded,
+                title: 'No wrong answers',
+                subtitle: 'This helps us understand you better',
+                delay: 400,
+              ),
+              const SizedBox(height: 16),
+              _buildExpectationItem(
+                icon: Icons.auto_awesome_rounded,
+                title: 'AI builds your path',
+                subtitle: 'A personalised plan generated just for you',
+                delay: 450,
+              ),
+
+              const Spacer(),
+
+              ElevatedButton(
+                onPressed: () =>
+                    context.go(AppRoutes.diagnosticQuiz, extra: subject),
+                child: const Text('Start Diagnostic'),
+              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpectationItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int delay,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 22),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyles.labelLarge),
+            Text(subtitle, style: AppTextStyles.bodySmall),
+          ],
+        ),
+      ],
+    )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: delay))
+        .slideX(begin: 0.2, end: 0);
+  }
+}

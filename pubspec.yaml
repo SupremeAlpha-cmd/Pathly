@@ -1,0 +1,74 @@
+name: pathly
+description: Pathly - Your personalised path to learning and growth.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Supabase - auth + database
+  supabase_flutter: ^2.3.4
+
+  # HTTP - Claude API calls
+  http: ^1.2.1
+
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # UI
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.0
+  percent_indicator: ^4.2.3
+  smooth_page_indicator: ^1.1.0
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.3
+
+  # Utils
+  uuid: ^4.4.0
+  intl: ^0.19.0
+  flutter_dotenv: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  build_runner: ^2.4.9
+  riverpod_generator: ^2.4.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  adaptive_icon_background: "#1A7F5A"
+  adaptive_icon_foreground: "assets/icons/app_icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - assets/images/
+    - assets/animations/
+    - assets/icons/
+
+  fonts:
+    - family: Satoshi
+      fonts:
+        - asset: assets/fonts/Satoshi-Regular.otf
+        - asset: assets/fonts/Satoshi-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Satoshi-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Satoshi-Black.otf
+          weight: 900
