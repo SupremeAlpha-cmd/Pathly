@@ -1,5 +1,5 @@
-name: Pathly
-description: Pathly - Your personalised path to learning and growth.
+name: kirasa
+description: Kirasa - Your personalised path to learning and growth.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -58,8 +58,6 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/images/
-    - assets/animations/
     - assets/icons/
 
   fonts:
