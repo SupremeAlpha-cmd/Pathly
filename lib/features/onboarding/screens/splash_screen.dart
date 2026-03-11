@@ -46,69 +46,72 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo mark
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Center(
-                child: Text(
-                  'P',
-                  style: TextStyle(
-                    fontSize: 44,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.white,
-                    height: 1,
+      body: SingleChildScrollView(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo mark
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Center(
+                  child: Text(
+                    'P',
+                    style: TextStyle(
+                      fontSize: 44,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.white,
+                      height: 1,
+                    ),
                   ),
                 ),
-              ),
-            ).animate().fadeIn(duration: 500.ms).scale(
-                begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack),
+              ).animate().fadeIn(duration: 500.ms).scale(
+                  begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // App name
-            Text(
-              'Pathly',
-              style: AppTextStyles.displayMedium.copyWith(
-                color: AppColors.white,
-                letterSpacing: -1,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 300.ms, duration: 500.ms)
-                .slideY(begin: 0.3, end: 0, curve: Curves.easeOutCubic),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Your personalised learning path',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.white.withOpacity(0.7),
-              ),
-            ).animate().fadeIn(delay: 500.ms, duration: 500.ms),
-
-            const SizedBox(height: 64),
-
-            // Loading indicator
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.white.withOpacity(0.5),
+              // App name
+              Text(
+                'Pathly',
+                style: AppTextStyles.displayMedium.copyWith(
+                  color: AppColors.white,
+                  letterSpacing: -1,
                 ),
-              ),
-            ).animate().fadeIn(delay: 800.ms, duration: 400.ms),
-          ],
+              )
+                  .animate()
+                  .fadeIn(delay: 300.ms, duration: 500.ms)
+                  .slideY(begin: 0.3, end: 0, curve: Curves.easeOutCubic),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Your personalised learning path',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.white.withOpacity(0.7),
+                ),
+              ).animate().fadeIn(delay: 500.ms, duration: 500.ms),
+
+              const SizedBox(height: 64),
+
+              // Loading indicator
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.white.withOpacity(0.5),
+                  ),
+                ),
+              ).animate().fadeIn(delay: 800.ms, duration: 400.ms),
+            ],
+          ),
         ),
       ),
     );
