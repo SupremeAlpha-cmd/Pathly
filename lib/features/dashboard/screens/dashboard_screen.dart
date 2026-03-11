@@ -6,10 +6,20 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../services/supabase_service.dart';
 import '../../../features/study_path/screens/study_path_screen.dart';
 import '../widgets/streak_card.dart';
 import '../widgets/subject_progress_card.dart';
 import '../widgets/progress_ring.dart';
+
+// Providers for dashboard data
+final streakProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  return await SupabaseService.getStreak();
+});
+
+final lessonsCountProvider = FutureProvider<int>((ref) async {
+  return await SupabaseService.getCompletedLessonsCount();
+});
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -36,7 +46,35 @@ class DashboardScreen extends ConsumerWidget {
 
     final mastery = (studyPath?['mastery_percentage'] as num?)?.toInt() ?? 0;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false, // Prevent accidental exit
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        // Show exit confirmation
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Exit Pathly?'),
+            content: const Text('Are you sure you want to exit?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Stay'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text('Exit',
+                    style: TextStyle(color: AppColors.error)),
+              ),
+            ],
+          ),
+        );
+        if (shouldExit == true && context.mounted) {
+          // ignore: use_build_context_synchronously
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
@@ -60,10 +98,7 @@ class DashboardScreen extends ConsumerWidget {
                           style: AppTextStyles.displayMedium,
                         ),
                       ],
-                    )
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .slideY(begin: 0.2, end: 0),
+                    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
 
                     // Avatar + settings
                     Row(
@@ -100,7 +135,14 @@ class DashboardScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: StreakCard(streak: 1, lessonsCompleted: 0),
+                child: ref.watch(streakProvider).when(
+                  data: (streak) => StreakCard(
+                    streak: streak['current_streak'] as int? ?? 0,
+                    lessonsCompleted: ref.watch(lessonsCountProvider).valueOrNull ?? 0,
+                  ),
+                  loading: () => StreakCard(streak: 0, lessonsCompleted: 0),
+                  error: (_, __) => StreakCard(streak: 0, lessonsCompleted: 0),
+                ),
               ),
             ),
 
@@ -162,8 +204,7 @@ class DashboardScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: studyPath == null
-                    ? _BuildPathBanner(
-                        onTap: () => context.go(AppRoutes.levelSelection))
+                    ? _BuildPathBanner(onTap: () => context.go(AppRoutes.levelSelection))
                     : _ContinueLearningCard(
                         modules: modules,
                         onTap: () => context.go(AppRoutes.studyPath),
@@ -181,7 +222,9 @@ class DashboardScreen extends ConsumerWidget {
                   child: Text('Module Progress', style: AppTextStyles.h3),
                 ).animate().fadeIn(delay: 450.ms),
               ),
+
               const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 sliver: SliverList(
@@ -199,11 +242,9 @@ class DashboardScreen extends ConsumerWidget {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: SubjectProgressCard(
-                          subject: module['title'] as String? ??
-                              'Module ${index + 1}',
+                          subject: module['title'] as String? ?? 'Module ${index + 1}',
                           percentage: index == 0 ? mastery : 0,
-                          lessonsLeft:
-                              (module['lessons'] as List?)?.length ?? 0,
+                          lessonsLeft: (module['lessons'] as List?)?.length ?? 0,
                           color: colors[index % colors.length],
                           animationIndex: index + 1,
                           onTap: () => context.go(AppRoutes.studyPath),
@@ -220,6 +261,7 @@ class DashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -245,8 +287,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             ListTile(
-              leading:
-                  const Icon(Icons.route_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.route_rounded, color: AppColors.primary),
               title: Text('My Learning Path', style: AppTextStyles.labelLarge),
               onTap: () {
                 Navigator.pop(context);
@@ -265,8 +306,7 @@ class DashboardScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.logout_rounded, color: AppColors.error),
               title: Text('Log Out',
-                  style: AppTextStyles.labelLarge
-                      .copyWith(color: AppColors.error)),
+                  style: AppTextStyles.labelLarge.copyWith(color: AppColors.error)),
               onTap: () async {
                 Navigator.pop(context);
                 await ref.read(authNotifierProvider.notifier).signOut();

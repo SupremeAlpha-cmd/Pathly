@@ -5,11 +5,35 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
+import '../../../services/supabase_service.dart';
 
-class DiagnosticResultScreen extends StatelessWidget {
+class DiagnosticResultScreen extends StatefulWidget {
   final Map<String, dynamic> results;
-
   const DiagnosticResultScreen({super.key, required this.results});
+
+  @override
+  State<DiagnosticResultScreen> createState() => _DiagnosticResultScreenState();
+}
+
+class _DiagnosticResultScreenState extends State<DiagnosticResultScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _saveResults();
+  }
+
+  Future<void> _saveResults() async {
+    await SupabaseService.saveDiagnosticResult(
+      level: widget.results['level'] as String,
+      score: widget.results['score'] as int,
+      total: widget.results['total'] as int,
+      percentage: widget.results['percentage'] as int,
+      topicScores:
+          Map<String, dynamic>.from(widget.results['topic_scores'] as Map),
+    );
+  }
+
+  Map<String, dynamic> get results => widget.results;
 
   String get _headline {
     final pct = results['percentage'] as int;
@@ -47,6 +71,15 @@ class DiagnosticResultScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(AppRoutes.levelSelection),
+        ),
+        title: Text('Your Results', style: AppTextStyles.h3),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -130,7 +163,7 @@ class DiagnosticResultScreen extends StatelessWidget {
 
               // CTA
               ElevatedButton(
-                onPressed: () => context.go(
+                onPressed: () => context.push(
                   AppRoutes.pathGenerating,
                   extra: results,
                 ),
@@ -140,7 +173,7 @@ class DiagnosticResultScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               OutlinedButton(
-                onPressed: () => context.go(AppRoutes.diagnosticQuiz,
+                onPressed: () => context.push(AppRoutes.diagnosticQuiz,
                     extra: results['level']),
                 child: const Text('Retake Diagnostic'),
               ).animate().fadeIn(delay: 850.ms),

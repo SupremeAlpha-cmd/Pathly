@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-class ClaudeService {
-  static const String _baseUrl = 'https://api.anthropic.com/v1/messages';
-  static const String _model = 'claude-sonnet-4-20250514';
-  static const String _apiVersion = '2023-06-01';
-
-  static String get _apiKey => dotenv.env['CLAUDE_API_KEY'] ?? '';
+class AIService {
+  static const String _model = 'gemini-1.5-flash';
+  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+  static String get _baseUrl =>
+      'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$_apiKey';
 
   /// Generate a personalised study path from diagnostic results
   static Future<Map<String, dynamic>> generateStudyPath({
@@ -24,7 +23,7 @@ class ClaudeService {
     );
 
     final response = await _sendMessage(prompt);
-    return _parseJsonResponse(response);
+    return _parseJsonResponse(response) as Map<String, dynamic>;
   }
 
   /// Get an AI explanation for a lesson concept
@@ -65,7 +64,7 @@ Level: $level
 Difficulty: $difficulty (based on mastery score: ${masteryScore.toStringAsFixed(0)}%)
 Nigerian curriculum aligned (WAEC/NERDC where applicable).
 
-Return ONLY a JSON array:
+Return ONLY a JSON array with no markdown or extra text:
 [
   {
     "id": "q1",
@@ -75,7 +74,6 @@ Return ONLY a JSON array:
     "explanation": "Brief explanation of the correct answer"
   }
 ]
-No markdown. No extra text.
 ''';
 
     final response = await _sendMessage(prompt);
@@ -85,40 +83,38 @@ No markdown. No extra text.
 
   // ─── Private Methods ───────────────────────────────────────────────
 
-  static Future<String> _sendMessage(String userMessage) async {
+  static Future<String> _sendMessage(String prompt) async {
     final response = await http.post(
       Uri.parse(_baseUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _apiKey,
-        'anthropic-version': _apiVersion,
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'model': _model,
-        'max_tokens': 1500,
-        'messages': [
-          {'role': 'user', 'content': userMessage}
+        'contents': [
+          {
+            'parts': [
+              {'text': prompt}
+            ]
+          }
         ],
+        'generationConfig': {
+          'temperature': 0.7,
+          'maxOutputTokens': 1500,
+        },
       }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Claude API error: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'Gemini API error: ${response.statusCode} ${response.body}');
     }
 
     final data = jsonDecode(response.body);
-    final content = data['content'] as List;
-    return content
-        .where((block) => block['type'] == 'text')
-        .map((block) => block['text'] as String)
-        .join('');
+    final candidates = data['candidates'] as List;
+    final content = candidates[0]['content']['parts'] as List;
+    return content[0]['text'] as String;
   }
 
   static dynamic _parseJsonResponse(String raw) {
-    final cleaned = raw
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
+    final cleaned = raw.replaceAll('```json', '').replaceAll('```', '').trim();
     return jsonDecode(cleaned);
   }
 
@@ -136,7 +132,7 @@ Level: $level
 Subject: $subject
 Diagnostic Results: ${jsonEncode(diagnosticResults)}
 
-Return ONLY this JSON structure:
+Return ONLY this JSON structure with no markdown or extra text:
 {
   "summary": "2-sentence personalised message to the student about their level and what the path will focus on",
   "mastery_percentage": <0-100 based on diagnostic performance>,
@@ -161,8 +157,6 @@ Return ONLY this JSON structure:
     }
   ]
 }
-
-No markdown. No explanation. JSON only.
 ''';
   }
 }

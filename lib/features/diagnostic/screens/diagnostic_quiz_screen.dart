@@ -257,7 +257,7 @@ class _DiagnosticQuizScreenState extends State<DiagnosticQuizScreen> {
       'answers': _answers,
     };
 
-    context.go(AppRoutes.diagnosticResult, extra: results);
+    context.push(AppRoutes.diagnosticResult, extra: results);
   }
 
   @override
@@ -270,7 +270,9 @@ class _DiagnosticQuizScreenState extends State<DiagnosticQuizScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          onPressed: () => context.go(AppRoutes.levelSelection),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(AppRoutes.levelSelection),
         ),
         title: Text(
           '${_currentIndex + 1} of ${_questions.length}',

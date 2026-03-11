@@ -49,7 +49,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _showError(authState.error.toString());
     } else {
       // New user — go to level selection
-      context.go(AppRoutes.levelSelection);
+      context.push(AppRoutes.levelSelection);
     }
   }
 
@@ -75,7 +75,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () => context.go(AppRoutes.login),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go(AppRoutes.login),
         ),
       ),
       body: SafeArea(
@@ -173,7 +174,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Text(AppStrings.alreadyHaveAccount,
                         style: AppTextStyles.bodyMedium),
                     TextButton(
-                      onPressed: () => context.go(AppRoutes.login),
+                      onPressed: () => context.pop(),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         minimumSize: Size.zero,

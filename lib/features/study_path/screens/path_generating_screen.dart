@@ -7,6 +7,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
 import '../../../services/claude_service.dart';
+import '../../../services/supabase_service.dart';
 import '../../../providers/auth_provider.dart';
 
 class PathGeneratingScreen extends ConsumerStatefulWidget {
@@ -14,7 +15,8 @@ class PathGeneratingScreen extends ConsumerStatefulWidget {
   const PathGeneratingScreen({super.key, required this.data});
 
   @override
-  ConsumerState<PathGeneratingScreen> createState() => _PathGeneratingScreenState();
+  ConsumerState<PathGeneratingScreen> createState() =>
+      _PathGeneratingScreenState();
 }
 
 class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
@@ -62,12 +64,24 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
       final user = ref.read(currentUserProvider);
       final userName = user?.userMetadata?['full_name'] as String? ?? 'there';
 
-      final studyPath = await ClaudeService.generateStudyPath(
-        userName: userName,
+      final studyPath = await AIService.generateStudyPath(
+  userName: userName,
+  level: widget.data['level'] as String,
+  subject: widget.data['subject'] as String, // separate subject later
+  diagnosticResults: widget.data,
+);
+
+      // Save to Supabase
+      await SupabaseService.saveStudyPath(
         level: widget.data['level'] as String,
-        subject: widget.data['level'] as String,
-        diagnosticResults: widget.data,
+        pathData: studyPath,
+        masteryPercentage:
+            (studyPath['mastery_percentage'] as num?)?.toInt() ?? 0,
+        estimatedWeeks: (studyPath['estimated_weeks'] as num?)?.toInt() ?? 4,
       );
+
+      // Update streak
+      await SupabaseService.updateStreak();
 
       if (!mounted) return;
       context.go(AppRoutes.studyPath, extra: studyPath);
@@ -129,7 +143,8 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
 
               Text(
                 AppStrings.generatingPath,
-                style: AppTextStyles.displayMedium.copyWith(color: AppColors.white),
+                style: AppTextStyles.displayMedium
+                    .copyWith(color: AppColors.white),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(duration: 500.ms),
 
@@ -184,7 +199,8 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
                                         height: 10,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 1.5,
-                                          valueColor: AlwaysStoppedAnimation(AppColors.white),
+                                          valueColor: AlwaysStoppedAnimation(
+                                              AppColors.white),
                                         ),
                                       )
                                     : null,
@@ -194,7 +210,8 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
                             _steps[index],
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: AppColors.white,
-                              fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
+                              fontWeight:
+                                  isCurrent ? FontWeight.w600 : FontWeight.w400,
                             ),
                           ),
                         ],
