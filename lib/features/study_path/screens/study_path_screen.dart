@@ -227,3 +227,7 @@ class _StatChip extends StatelessWidget {
     );
   }
 }
+
+
+/// Alias used by MainScaffold
+typedef StudyPathContent = StudyPathScreen;

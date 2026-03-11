@@ -420,3 +420,7 @@ class _ContinueLearningCard extends StatelessWidget {
     );
   }
 }
+
+
+/// Alias used by MainScaffold — same as DashboardScreen body
+typedef DashboardContent = DashboardScreen;
