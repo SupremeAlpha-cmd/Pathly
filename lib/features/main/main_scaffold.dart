@@ -5,7 +5,6 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/router/app_router.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/supabase_service.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../study_path/screens/study_path_screen.dart';
 import '../progress/screens/progress_screen.dart';
@@ -16,21 +15,19 @@ final mainNavIndexProvider = StateProvider<int>((ref) => 0);
 class MainScaffold extends ConsumerWidget {
   const MainScaffold({super.key});
 
-  static final List<Widget> _screens = [
-    const DashboardContent(),
-    const StudyPathContent(),
-    const ProgressScreen(),
-    const ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(mainNavIndexProvider);
     final user = ref.watch(currentUserProvider);
-    final firstName = (user?.userMetadata?['full_name'] as String? ?? 'there')
-        .split(' ')
-        .first;
     final fullName = user?.userMetadata?['full_name'] as String? ?? 'User';
+    final firstName = fullName.split(' ').first;
+
+    final screens = [
+      const DashboardScreen(),
+      StudyPathScreen(pathData: ref.watch(studyPathProvider)),
+      const ProgressScreen(),
+      const ProfileScreen(),
+    ];
 
     return PopScope(
       canPop: false,
@@ -64,14 +61,16 @@ class MainScaffold extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.background,
         drawer: _buildDrawer(context, ref, fullName, firstName),
-        body: _screens[currentIndex],
-        bottomNavigationBar: _buildBottomNav(context, ref, currentIndex),
+        body: IndexedStack(
+          index: currentIndex,
+          children: screens,
+        ),
+        bottomNavigationBar: _buildBottomNav(ref, currentIndex),
       ),
     );
   }
 
-  Widget _buildBottomNav(
-      BuildContext context, WidgetRef ref, int currentIndex) {
+  Widget _buildBottomNav(WidgetRef ref, int currentIndex) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -160,16 +159,13 @@ class MainScaffold extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    fullName,
-                    style: AppTextStyles.h2.copyWith(color: AppColors.white),
-                  ),
+                  Text(fullName,
+                      style: AppTextStyles.h2.copyWith(color: AppColors.white)),
                   const SizedBox(height: 4),
                   Text(
                     user?.email ?? '',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.white.withOpacity(0.7),
-                    ),
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.white.withOpacity(0.7)),
                   ),
                 ],
               ),
@@ -177,7 +173,6 @@ class MainScaffold extends ConsumerWidget {
 
             const SizedBox(height: 8),
 
-            // Nav items
             _DrawerItem(
                 icon: Icons.home_rounded,
                 label: 'Home',
@@ -224,7 +219,6 @@ class MainScaffold extends ConsumerWidget {
             ),
 
             const Spacer(),
-
             const Divider(),
 
             _DrawerItem(
@@ -244,6 +238,8 @@ class MainScaffold extends ConsumerWidget {
     );
   }
 }
+
+// ── Nav Item ────────────────────────────────────────────────
 
 class _NavItem extends StatelessWidget {
   final IconData icon;
@@ -277,11 +273,9 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: _isSelected ? AppColors.primary : AppColors.grey300,
-              size: 24,
-            ),
+            Icon(icon,
+                color: _isSelected ? AppColors.primary : AppColors.grey300,
+                size: 24),
             const SizedBox(height: 4),
             Text(
               label,
@@ -296,6 +290,8 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
+// ── Drawer Item ─────────────────────────────────────────────
 
 class _DrawerItem extends StatelessWidget {
   final IconData icon;
