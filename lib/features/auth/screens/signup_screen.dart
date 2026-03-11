@@ -54,14 +54,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   void _showError(String message) {
+    String display;
+    if (message.contains('already registered') || message.contains('already')) {
+      display = AppStrings.emailInUse;
+    } else if (message.contains('password')) {
+      display = 'Password must be at least 8 characters.';
+    } else if (message.contains('invalid') || message.contains('email')) {
+      display = 'Invalid email address.';
+    } else {
+      // Show actual error for debugging
+      display = message
+          .replaceAll('Exception: ', '')
+          .replaceAll('AuthException: ', '');
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message.contains('already')
-              ? AppStrings.emailInUse
-              : AppStrings.genericError,
-        ),
+        content: Text(display),
         backgroundColor: AppColors.error,
+        duration: const Duration(seconds: 6),
       ),
     );
   }

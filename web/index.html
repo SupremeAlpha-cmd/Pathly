@@ -2,39 +2,129 @@
 <html>
 <head>
   <base href="/">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Kirasa — Your personalised AI learning path. Diagnostic quiz, adaptive study plans, and progress tracking built for every level.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Open Graph (for link previews) -->
-  <meta property="og:title" content="Pathly">
+  <meta property="og:title" content="Kirasa">
   <meta property="og:description" content="Your personalised AI learning path.">
   <meta property="og:type" content="website">
-
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Pathly">
+  <meta name="apple-mobile-web-app-title" content="Kirasa">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>Pathly — AI Learning Paths</title>
+  <title>Kirasa — AI Learning Paths</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
-    /* Prevent flash of white before Flutter loads */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       background-color: #1A7F5A;
-      margin: 0;
-      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
+
+    #loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .logo-box {
+      width: 88px;
+      height: 88px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .logo-letter {
+      font-size: 48px;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+    }
+
+    .app-name {
+      font-size: 32px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -1px;
+      animation: slideUp 0.5s ease 0.2s both;
+    }
+
+    .app-subtitle {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 400;
+      animation: slideUp 0.5s ease 0.35s both;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      animation: slideUp 0.5s ease 0.5s both;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.15s; }
+    .dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-8px); opacity: 1; } }
+
+    #loading-screen.hidden { animation: fadeOut 0.4s ease forwards; pointer-events: none; }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
   </style>
 </head>
 <body>
+
+  <div id="loading-screen">
+    <div class="logo-box">
+      <span class="logo-letter">K</span>
+    </div>
+    <div class="app-name">Kirasa</div>
+    <div class="app-subtitle">Your personalised AI learning path</div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      const loader = document.getElementById('loading-screen');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 400);
+      }
+    });
+  </script>
+
 </body>
 </html>
