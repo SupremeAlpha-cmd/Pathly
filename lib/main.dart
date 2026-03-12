@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,23 +10,51 @@ import 'core/theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
-  await dotenv.load(fileName: '.env', mergeWith: {}).catchError((_) {});
+  String supabaseUrl = '';
+  String supabaseKey = '';
 
-  // Initialise Supabase
-  final supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
-  final supabaseKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
-  if (supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty) {
-    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+  if (kIsWeb) {
+    // On web: values are compiled in via --dart-define
+    supabaseUrl =
+        const String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+    supabaseKey =
+        const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  } else {
+    // On mobile: load from .env file
+    await dotenv.load(fileName: '.env').catchError((_) {});
+    supabaseUrl = dotenv.env['SUPABASE_URL'] ?? '';
+    supabaseKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
   }
 
-  // Lock to portrait mode
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  debugPrint('🔑 Supabase URL empty: ${supabaseUrl.isEmpty}');
+  debugPrint('🔑 Supabase Key empty: ${supabaseKey.isEmpty}');
 
-  // Status bar style
+  if (supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty) {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseKey,
+      debug: kDebugMode,
+    );
+    debugPrint('✅ Supabase initialized');
+  } else {
+    debugPrint('❌ Supabase keys missing — auth will not work');
+    // Initialize with placeholder so app doesn't crash on .instance access
+    // This will still fail on actual auth calls but prevents LateInitializationError
+    try {
+      await Supabase.initialize(
+        url: 'https://placeholder.supabase.co',
+        anonKey: 'placeholder',
+      );
+    } catch (_) {}
+  }
+
+  if (!kIsWeb) {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -33,22 +62,18 @@ Future<void> main() async {
     ),
   );
 
-  runApp(
-    const ProviderScope(
-      child: PathlyApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: KirasaApp()));
 }
 
-class PathlyApp extends ConsumerWidget {
-  const PathlyApp({super.key});
+class KirasaApp extends ConsumerWidget {
+  const KirasaApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Pathly',
+      title: 'Kirasa',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: router,
