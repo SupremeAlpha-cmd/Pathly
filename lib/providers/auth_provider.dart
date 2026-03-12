@@ -31,11 +31,20 @@ class AuthNotifier extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _client.auth.signUp(
-        email: email,
-        password: password,
-        data: {'full_name': fullName},
-      );
+      try {
+        await _client.auth.signUp(
+          email: email,
+          password: password,
+          data: {'full_name': fullName},
+        );
+      } on AuthRetryableFetchException {
+        // Retry once for transient web fetch errors
+        await _client.auth.signUp(
+          email: email,
+          password: password,
+          data: {'full_name': fullName},
+        );
+      }
     });
   }
 
@@ -45,10 +54,18 @@ class AuthNotifier extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      try {
+        await _client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+      } on AuthRetryableFetchException {
+        // Retry once for transient web fetch errors
+        await _client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+      }
     });
   }
 

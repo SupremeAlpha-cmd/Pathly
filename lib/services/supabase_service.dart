@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
@@ -15,7 +16,9 @@ class SupabaseService {
           .eq('id', _userId!)
           .maybeSingle();
       return response;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getProfile error: $e');
+      debugPrintStack(stackTrace: stack);
       return null;
     }
   }
@@ -33,8 +36,9 @@ class SupabaseService {
         if (level != null) 'level': level,
         if (avatarUrl != null) 'avatar_url': avatarUrl,
       });
-    } catch (e) {
-      // fail silently
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.updateProfile error: $e');
+      debugPrintStack(stackTrace: stack);
     }
   }
 
@@ -57,8 +61,9 @@ class SupabaseService {
         'percentage': percentage,
         'topic_scores': topicScores,
       });
-    } catch (e) {
-      // fail silently
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.saveDiagnosticResult error: $e');
+      debugPrintStack(stackTrace: stack);
     }
   }
 
@@ -73,7 +78,9 @@ class SupabaseService {
           .limit(1)
           .maybeSingle();
       return response;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getLatestDiagnosticResult error: $e');
+      debugPrintStack(stackTrace: stack);
       return null;
     }
   }
@@ -97,8 +104,9 @@ class SupabaseService {
         'estimated_weeks': estimatedWeeks,
         'updated_at': DateTime.now().toIso8601String(),
       });
-    } catch (e) {
-      // fail silently
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.saveStudyPath error: $e');
+      debugPrintStack(stackTrace: stack);
     }
   }
 
@@ -114,7 +122,9 @@ class SupabaseService {
           .maybeSingle();
       if (response == null) return null;
       return response['path_data'] as Map<String, dynamic>?;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getStudyPath error: $e');
+      debugPrintStack(stackTrace: stack);
       return null;
     }
   }
@@ -136,8 +146,9 @@ class SupabaseService {
         if (score != null) 'score': score,
         'completed_at': DateTime.now().toIso8601String(),
       });
-    } catch (e) {
-      // fail silently
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.markLessonComplete error: $e');
+      debugPrintStack(stackTrace: stack);
     }
   }
 
@@ -152,7 +163,9 @@ class SupabaseService {
       return List<Map<String, dynamic>>.from(response)
           .map((r) => r['lesson_id'] as String)
           .toList();
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getCompletedLessons error: $e');
+      debugPrintStack(stackTrace: stack);
       return [];
     }
   }
@@ -166,7 +179,9 @@ class SupabaseService {
           .eq('user_id', _userId!)
           .eq('is_completed', true);
       return (response as List).length;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getCompletedLessonsCount error: $e');
+      debugPrintStack(stackTrace: stack);
       return 0;
     }
   }
@@ -184,17 +199,20 @@ class SupabaseService {
 
       if (response == null) {
         // Create streak record for new user
-        await _client.from('streaks').insert({
+        final newStreak = {
           'user_id': _userId,
           'current_streak': 1,
           'longest_streak': 1,
           'last_active_date': DateTime.now().toIso8601String().split('T')[0],
-        });
-        return {'current_streak': 1, 'longest_streak': 1};
+        };
+        await _client.from('streaks').insert(newStreak);
+        return newStreak;
       }
 
       return response;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.getStreak error: $e');
+      debugPrintStack(stackTrace: stack);
       return {'current_streak': 0, 'longest_streak': 0};
     }
   }
@@ -227,8 +245,9 @@ class SupabaseService {
         'longest_streak': longestStreak,
         'last_active_date': today,
       });
-    } catch (e) {
-      // fail silently
+    } catch (e, stack) {
+      debugPrint('❌ SupabaseService.updateStreak error: $e');
+      debugPrintStack(stackTrace: stack);
     }
   }
 }

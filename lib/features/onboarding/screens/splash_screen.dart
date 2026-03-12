@@ -63,7 +63,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
                 child: const Center(
                   child: Text(
-                    'K',
+                    'P',
                     style: TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.w900,
@@ -82,7 +82,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
             // App name
             Text(
-              'Kirasa',
+              'Pathly',
               style: AppTextStyles.displayMedium.copyWith(
                 color: AppColors.white,
                 letterSpacing: -1,

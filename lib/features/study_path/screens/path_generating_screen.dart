@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import '../../../services/claude_service.dart';
+import '../../../services/ai_service.dart';
 import '../../../services/supabase_service.dart';
 import '../../../providers/auth_provider.dart';
 
@@ -50,7 +51,6 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
   }
 
   Future<void> _generatePath() async {
-    // Cycle through status messages
     for (int i = 0; i < _steps.length; i++) {
       await Future.delayed(const Duration(milliseconds: 900));
       if (!mounted) return;
@@ -65,13 +65,12 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
       final userName = user?.userMetadata?['full_name'] as String? ?? 'there';
 
       final studyPath = await AIService.generateStudyPath(
-  userName: userName,
-  level: widget.data['level'] as String,
-  subject: widget.data['subject'] as String, // separate subject later
-  diagnosticResults: widget.data,
-);
+        userName: userName,
+        level: widget.data['level'] as String,
+        subject: widget.data['level'] as String,
+        diagnosticResults: widget.data,
+      );
 
-      // Save to Supabase
       await SupabaseService.saveStudyPath(
         level: widget.data['level'] as String,
         pathData: studyPath,
@@ -80,14 +79,23 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
         estimatedWeeks: (studyPath['estimated_weeks'] as num?)?.toInt() ?? 4,
       );
 
-      // Update streak
       await SupabaseService.updateStreak();
 
       if (!mounted) return;
       context.go(AppRoutes.studyPath, extra: studyPath);
     } catch (e) {
+      debugPrint('❌ Path generation error: $e');
       if (!mounted) return;
-      // On error, navigate with empty path so app doesn't get stuck
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: ${e.toString().replaceAll('Exception: ', '')}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+        ),
+      );
       context.go(AppRoutes.studyPath, extra: <String, dynamic>{});
     }
   }
@@ -103,16 +111,11 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-
-              // Animated orb
               AnimatedBuilder(
                 animation: _pulseController,
                 builder: (context, child) {
                   final scale = 1.0 + (_pulseController.value * 0.08);
-                  return Transform.scale(
-                    scale: scale,
-                    child: child,
-                  );
+                  return Transform.scale(scale: scale, child: child);
                 },
                 child: Container(
                   width: 140,
@@ -138,18 +141,14 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
                   ),
                 ),
               ),
-
               const SizedBox(height: 56),
-
               Text(
                 AppStrings.generatingPath,
                 style: AppTextStyles.displayMedium
                     .copyWith(color: AppColors.white),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(duration: 500.ms),
-
               const SizedBox(height: 16),
-
               Text(
                 AppStrings.generatingSubtitle,
                 style: AppTextStyles.bodyLarge.copyWith(
@@ -157,10 +156,7 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
                 ),
                 textAlign: TextAlign.center,
               ).animate().fadeIn(delay: 200.ms),
-
               const SizedBox(height: 56),
-
-              // Step indicators
               Column(
                 children: List.generate(_steps.length, (index) {
                   final isDone = index < _step;
@@ -220,16 +216,13 @@ class _PathGeneratingScreenState extends ConsumerState<PathGeneratingScreen>
                   );
                 }),
               ),
-
               const Spacer(),
-
               Text(
                 'This usually takes about 10 seconds',
                 style: AppTextStyles.caption.copyWith(
                   color: AppColors.white.withOpacity(0.4),
                 ),
               ).animate().fadeIn(delay: 1000.ms),
-
               const SizedBox(height: 32),
             ],
           ),

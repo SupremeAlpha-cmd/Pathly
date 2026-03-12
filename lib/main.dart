@@ -36,6 +36,11 @@ Future<void> main() async {
       debug: kDebugMode,
     );
     debugPrint('✅ Supabase initialized');
+
+    // Web warm-up: Trigger a small request to get the CORS preflight out of the way
+    if (kIsWeb) {
+      Supabase.instance.client.auth.getUser().catchError((_) => null);
+    }
   } else {
     debugPrint('❌ Supabase keys missing — auth will not work');
     // Initialize with placeholder so app doesn't crash on .instance access
@@ -62,18 +67,18 @@ Future<void> main() async {
     ),
   );
 
-  runApp(const ProviderScope(child: KirasaApp()));
+  runApp(const ProviderScope(child: PathlyApp()));
 }
 
-class KirasaApp extends ConsumerWidget {
-  const KirasaApp({super.key});
+class PathlyApp extends ConsumerWidget {
+  const PathlyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Kirasa',
+      title: 'Pathly',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: router,

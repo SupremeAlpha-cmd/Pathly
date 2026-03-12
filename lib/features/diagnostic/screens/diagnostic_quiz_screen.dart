@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
 import '../widgets/question_card.dart';
+import '../utils/diagnostic_calculator.dart';
 
 // Static diagnostic questions per level
 final Map<String, List<Map<String, dynamic>>> _questionBank = {
@@ -232,30 +233,11 @@ class _DiagnosticQuizScreenState extends State<DiagnosticQuizScreen> {
   }
 
   void _finishQuiz() {
-    // Calculate results
-    int correct = 0;
-    final topicScores = <String, Map<String, int>>{};
-
-    for (int i = 0; i < _questions.length; i++) {
-      final q = _questions[i];
-      final topic = q['topic'] as String;
-      topicScores[topic] ??= {'correct': 0, 'total': 0};
-      topicScores[topic]!['total'] = topicScores[topic]!['total']! + 1;
-
-      if (_answers[i] == q['correct']) {
-        correct++;
-        topicScores[topic]!['correct'] = topicScores[topic]!['correct']! + 1;
-      }
-    }
-
-    final results = {
-      'level': widget.subject,
-      'score': correct,
-      'total': _questions.length,
-      'percentage': (correct / _questions.length * 100).round(),
-      'topic_scores': topicScores,
-      'answers': _answers,
-    };
+    final results = DiagnosticCalculator.calculateResults(
+      level: widget.subject,
+      questions: _questions,
+      answers: _answers,
+    );
 
     context.push(AppRoutes.diagnosticResult, extra: results);
   }
