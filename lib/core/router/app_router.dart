@@ -78,38 +78,45 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: const LevelSelectionScreen(),
         ),
       ),
+
       GoRoute(
         path: AppRoutes.diagnosticIntro,
         builder: (context, state) {
-          final subject = state.extra as String? ?? 'General';
+          final subject = (state.extra is String ? state.extra as String : null)
+              ?? state.pathParameters['subject']
+              ?? state.uri.queryParameters['subject']
+              ?? 'secondary';
           return DiagnosticIntroScreen(subject: subject);
         },
       ),
       GoRoute(
         path: AppRoutes.diagnosticQuiz,
         builder: (context, state) {
-          final subject = state.extra as String? ?? 'General';
+          final subject = (state.extra is String ? state.extra as String : null)
+              ?? state.pathParameters['subject']
+              ?? state.uri.queryParameters['subject']
+              ?? 'secondary';
           return DiagnosticQuizScreen(subject: subject);
         },
       ),
       GoRoute(
         path: AppRoutes.diagnosticResult,
         builder: (context, state) {
-          final results = state.extra as Map<String, dynamic>? ?? {};
+          final results = (state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null) ?? {};
           return DiagnosticResultScreen(results: results);
         },
       ),
       GoRoute(
         path: AppRoutes.pathGenerating,
         builder: (context, state) {
-          final data = state.extra as Map<String, dynamic>? ?? {};
+          final data = (state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null) ?? {};
           return PathGeneratingScreen(data: data);
         },
       ),
       GoRoute(
         path: AppRoutes.studyPath,
         builder: (context, state) {
-          final pathData = state.extra as Map<String, dynamic>?;
+          final pathData = state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null;
           return StudyPathScreen(pathData: pathData);
         },
       ),
