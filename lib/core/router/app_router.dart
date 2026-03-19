@@ -11,7 +11,7 @@ import '../../features/diagnostic/screens/diagnostic_quiz_screen.dart';
 import '../../features/diagnostic/screens/diagnostic_result_screen.dart';
 import '../../features/study_path/screens/path_generating_screen.dart';
 import '../../features/study_path/screens/study_path_screen.dart';
-import '../../features/dashboard/screens/dashboard_screen.dart';
+import '../../features/main/main_scaffold.dart';
 import 'package:pathly/features/auth/providers/auth_provider.dart';
 
 // Route names
@@ -79,50 +79,73 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
+      // Handle Supabase auth redirects (password reset, email confirm)
+      GoRoute(
+        path: '/',
+        redirect: (context, state) {
+          final code = state.uri.queryParameters['code'];
+          if (code != null) {
+            // Auth redirect — go to login
+            return AppRoutes.login;
+          }
+          return null;
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.diagnosticIntro,
         builder: (context, state) {
-          final subject = (state.extra is String ? state.extra as String : null)
-              ?? state.pathParameters['subject']
-              ?? state.uri.queryParameters['subject']
-              ?? 'secondary';
+          final subject =
+              (state.extra is String ? state.extra as String : null) ??
+                  state.pathParameters['subject'] ??
+                  state.uri.queryParameters['subject'] ??
+                  'secondary';
           return DiagnosticIntroScreen(subject: subject);
         },
       ),
       GoRoute(
         path: AppRoutes.diagnosticQuiz,
         builder: (context, state) {
-          final subject = (state.extra is String ? state.extra as String : null)
-              ?? state.pathParameters['subject']
-              ?? state.uri.queryParameters['subject']
-              ?? 'secondary';
+          final subject =
+              (state.extra is String ? state.extra as String : null) ??
+                  state.pathParameters['subject'] ??
+                  state.uri.queryParameters['subject'] ??
+                  'secondary';
           return DiagnosticQuizScreen(subject: subject);
         },
       ),
       GoRoute(
         path: AppRoutes.diagnosticResult,
         builder: (context, state) {
-          final results = (state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null) ?? {};
+          final results = (state.extra is Map<String, dynamic>
+                  ? state.extra as Map<String, dynamic>
+                  : null) ??
+              {};
           return DiagnosticResultScreen(results: results);
         },
       ),
       GoRoute(
         path: AppRoutes.pathGenerating,
         builder: (context, state) {
-          final data = (state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null) ?? {};
+          final data = (state.extra is Map<String, dynamic>
+                  ? state.extra as Map<String, dynamic>
+                  : null) ??
+              {};
           return PathGeneratingScreen(data: data);
         },
       ),
       GoRoute(
         path: AppRoutes.studyPath,
         builder: (context, state) {
-          final pathData = state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null;
+          final pathData = state.extra is Map<String, dynamic>
+              ? state.extra as Map<String, dynamic>
+              : null;
           return StudyPathScreen(pathData: pathData);
         },
       ),
       GoRoute(
         path: AppRoutes.dashboard,
-        builder: (context, state) => const DashboardScreen(),
+        builder: (context, state) => const MainScaffold(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
