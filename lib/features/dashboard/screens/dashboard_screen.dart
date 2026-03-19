@@ -68,12 +68,20 @@ class DashboardScreen extends ConsumerWidget {
             SliverAppBar(
               expandedHeight: 140,
               pinned: true,
-              backgroundColor: AppColors.background,
-              elevation: 0,
-              scrolledUnderElevation: 0,
+              backgroundColor: AppColors.primaryLight,
+              elevation: 4,
+              scrolledUnderElevation: 2,
+              shadowColor: AppColors.primary.withOpacity(0.2),
               leading: const SizedBox.shrink(),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [AppColors.primaryLight, AppColors.primary],
+                    ),
+                  ),
                   padding: const EdgeInsets.fromLTRB(24, 40, 24, 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,12 +93,14 @@ class DashboardScreen extends ConsumerWidget {
                           Text(
                             '${_greeting()},',
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.dark.withOpacity(0.6),
+                              color: AppColors.white.withOpacity(0.8),
                             ),
                           ),
                           Text(
                             firstName,
-                            style: AppTextStyles.displayMedium,
+                            style: AppTextStyles.displayMedium.copyWith(
+                              color: AppColors.white,
+                            ),
                           ),
                         ],
                       ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
@@ -105,14 +115,15 @@ class DashboardScreen extends ConsumerWidget {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: AppColors.primarySurface,
+                                color: AppColors.white.withOpacity(0.2),
                                 shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.white.withOpacity(0.3)),
                               ),
                               child: Center(
                                 child: Text(
                                   firstName[0].toUpperCase(),
                                   style: AppTextStyles.h2.copyWith(
-                                    color: AppColors.primary,
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ),

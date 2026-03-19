@@ -73,20 +73,21 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
           SliverAppBar(
             expandedHeight: 220,
             pinned: true,
-            backgroundColor: AppColors.background,
-            elevation: 0,
-            scrolledUnderElevation: 0,
+            backgroundColor: AppColors.primary,
+            elevation: 4,
+            scrolledUnderElevation: 2,
+            shadowColor: AppColors.primary.withOpacity(0.2),
             leading: const SizedBox.shrink(),
             actions: [
               IconButton(
-                icon: const Icon(Icons.dashboard_rounded, color: AppColors.primary),
+                icon: const Icon(Icons.dashboard_rounded, color: AppColors.white),
                 onPressed: () => context.go(AppRoutes.dashboard),
               ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(color: AppColors.background),
+                decoration: const BoxDecoration(gradient: AppColors.cardGradient),
                 padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,13 +95,13 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
                   children: [
                     Text(
                       "Hey $name, here's your path 🎯",
-                      style: AppTextStyles.h3.copyWith(color: AppColors.dark.withOpacity(0.85)),
+                      style: AppTextStyles.h3.copyWith(color: AppColors.white.withOpacity(0.85)),
                     ).animate().fadeIn(duration: 400.ms),
                     const SizedBox(height: 8),
                     Text(
                       _summary,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.dark.withOpacity(0.6),
+                        color: AppColors.white.withOpacity(0.7),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -226,17 +227,16 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.08),
+        color: AppColors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
       ),
       child: Column(
         children: [
           Text(label,
-              style: AppTextStyles.h3.copyWith(color: AppColors.primary)),
+              style: AppTextStyles.h3.copyWith(color: AppColors.white)),
           Text(sublabel,
               style: AppTextStyles.labelSmall
-                  .copyWith(color: AppColors.dark.withOpacity(0.5))),
+                  .copyWith(color: AppColors.white.withOpacity(0.65))),
         ],
       ),
     );
