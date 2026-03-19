@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/router/app_router.dart';
-import '../../providers/auth_provider.dart';
+import 'package:pathly/features/auth/providers/auth_provider.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../study_path/screens/study_path_screen.dart';
 import '../progress/screens/progress_screen.dart';

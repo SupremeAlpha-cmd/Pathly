@@ -12,7 +12,7 @@ import '../../features/diagnostic/screens/diagnostic_result_screen.dart';
 import '../../features/study_path/screens/path_generating_screen.dart';
 import '../../features/study_path/screens/study_path_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
-import '../../providers/auth_provider.dart';
+import 'package:pathly/features/auth/providers/auth_provider.dart';
 
 // Route names
 class AppRoutes {

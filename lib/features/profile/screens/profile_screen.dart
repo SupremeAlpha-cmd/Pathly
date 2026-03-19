@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import '../../../providers/auth_provider.dart';
-import '../../../services/supabase_service.dart';
+import 'package:pathly/features/auth/providers/auth_provider.dart';
+import 'package:pathly/core/services/supabase_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});

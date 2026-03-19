@@ -5,7 +5,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import '../../../services/supabase_service.dart';
+import 'package:pathly/core/services/supabase_service.dart';
 
 class DiagnosticResultScreen extends StatefulWidget {
   final Map<String, dynamic> results;
@@ -144,10 +144,7 @@ class _DiagnosticResultScreenState extends State<DiagnosticResultScreen> {
               ...topicScores.entries.toList().asMap().entries.map((entry) {
                 final index = entry.key;
                 final topic = entry.value.key;
-                final data = entry.value.value as Map<String, dynamic>;
-                final topicPct =
-                    ((data['correct'] as int) / (data['total'] as int) * 100)
-                        .round();
+                final topicPct = (entry.value.value as num).round();
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),

@@ -7,9 +7,9 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import '../../../services/ai_service.dart';
-import '../../../services/supabase_service.dart';
-import '../../../providers/auth_provider.dart';
+import 'package:pathly/features/study_path/services/ai_service.dart';
+import 'package:pathly/core/services/supabase_service.dart';
+import 'package:pathly/features/auth/providers/auth_provider.dart';
 
 class PathGeneratingScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> data;

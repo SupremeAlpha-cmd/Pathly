@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../services/supabase_service.dart';
+import 'package:pathly/core/services/supabase_service.dart';
 
 final progressDataProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final streak = await SupabaseService.getStreak();

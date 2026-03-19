@@ -1,13 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AIService {
-  static const String _model = 'gemini-1.5-flash';
-  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
-  static String get _baseUrl =>
-      'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$_apiKey';
 
   /// Generate a personalised study path from diagnostic results
   static Future<Map<String, dynamic>> generateStudyPath({
@@ -92,33 +88,16 @@ Return ONLY a JSON array with no markdown or extra text:
 
   static Future<String> _sendMessage(String prompt) async {
     try {
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': [
-            {
-              'parts': [
-                {'text': prompt}
-              ]
-            }
-          ],
-          'generationConfig': {
-            'temperature': 0.7,
-            'maxOutputTokens': 1500,
-          },
-        }),
+      final res = await Supabase.instance.client.functions.invoke(
+        'proxy-gemini',
+        body: {'prompt': prompt},
       );
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Gemini API error: ${response.statusCode} ${response.body}');
+      if (res.status != 200) {
+        throw Exception('Edge function error: ${res.status} ${res.data}');
       }
-
-      final data = jsonDecode(response.body);
-      final candidates = data['candidates'] as List;
-      final content = candidates[0]['content']['parts'] as List;
-      return content[0]['text'] as String;
+      
+      return res.data['text'] as String;
     } catch (e) {
       debugPrint('❌ AIService._sendMessage error: $e');
       rethrow;
