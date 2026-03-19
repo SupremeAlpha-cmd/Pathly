@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import 'package:pathly/features/auth/providers/auth_provider.dart';
-import 'package:pathly/core/services/supabase_service.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../features/study_path/screens/study_path_screen.dart';
 import '../widgets/streak_card.dart';
 import '../widgets/subject_progress_card.dart';
@@ -15,6 +15,10 @@ import '../widgets/progress_ring.dart';
 // Providers for dashboard data
 final streakProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return await SupabaseService.getStreak();
+});
+
+final savedStudyPathProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+  return await SupabaseService.getStudyPath();
 });
 
 final lessonsCountProvider = FutureProvider<int>((ref) async {
@@ -37,7 +41,16 @@ class DashboardScreen extends ConsumerWidget {
     final firstName = (user?.userMetadata?['full_name'] as String? ?? 'there')
         .split(' ')
         .first;
-    final studyPath = ref.watch(studyPathProvider);
+    // Load from Supabase if not in memory
+    final studyPath = ref.watch(studyPathProvider) ?? 
+        ref.watch(savedStudyPathProvider).valueOrNull;
+    
+    // Sync to in-memory provider
+    if (studyPath != null && ref.read(studyPathProvider) == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(studyPathProvider.notifier).state = studyPath;
+      });
+    }
 
     // Build subject progress from study path if available
     final modules = studyPath != null
@@ -46,37 +59,7 @@ class DashboardScreen extends ConsumerWidget {
 
     final mastery = (studyPath?['mastery_percentage'] as num?)?.toInt() ?? 0;
 
-    return PopScope(
-      canPop: false, // Prevent accidental exit
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        // Show exit confirmation
-        final shouldExit = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Exit Pathly?'),
-            content: const Text('Are you sure you want to exit?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Stay'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text('Exit',
-                    style: TextStyle(color: AppColors.error)),
-              ),
-            ],
-          ),
-        );
-        if (shouldExit == true && context.mounted) {
-          // ignore: use_build_context_synchronously
-          Navigator.of(context).pop();
-        }
-      },
-      child: Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
+    return SafeArea(
         child: CustomScrollView(
           slivers: [
             // Top bar
@@ -259,9 +242,7 @@ class DashboardScreen extends ConsumerWidget {
 
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
-        ),
-      ),
-    ),
+        )
     );
   }
 

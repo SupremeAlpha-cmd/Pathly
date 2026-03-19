@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/app_router.dart';
-import 'package:pathly/features/auth/providers/auth_provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../../core/services/supabase_service.dart';
 import '../widgets/path_module_card.dart';
 
 // Provider to hold the generated study path
@@ -28,13 +29,22 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
     super.initState();
     _path = widget.pathData ?? {};
 
-    // Persist path to provider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.pathData != null) {
         ref.read(studyPathProvider.notifier).state = widget.pathData;
       } else {
+        // Try in-memory provider first
         final saved = ref.read(studyPathProvider);
-        if (saved != null) _path = saved;
+        if (saved != null) {
+          if (mounted) setState(() => _path = saved);
+        } else {
+          // Fall back to Supabase
+          final fromDb = await SupabaseService.getStudyPath();
+          if (fromDb != null && mounted) {
+            ref.read(studyPathProvider.notifier).state = fromDb;
+            setState(() => _path = fromDb);
+          }
+        }
       }
     });
   }
@@ -54,9 +64,7 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
     final user = ref.watch(currentUserProvider);
     final name = (user?.userMetadata?['full_name'] as String? ?? 'there').split(' ').first;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: CustomScrollView(
+    return CustomScrollView(
         slivers: [
           // Header
           SliverAppBar(
@@ -109,7 +117,7 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
           ),
 
           // Focus areas chip row
-          if ((_path['focus_areas'] as List?)?.isNotEmpty == true)
+          if (_path['focus_areas'] is List && (_path['focus_areas'] as List).isNotEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
@@ -196,8 +204,7 @@ class _StudyPathScreenState extends ConsumerState<StudyPathScreen> {
                   ),
           ),
         ],
-      ),
-    );
+      );
   }
 }
 
