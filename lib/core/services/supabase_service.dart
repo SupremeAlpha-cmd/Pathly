@@ -95,7 +95,6 @@ class SupabaseService {
   }) async {
     if (_userId == null) return;
     try {
-      // Upsert — update if exists, insert if not
       await _client.from('study_paths').upsert({
         'user_id': _userId,
         'level': level,
@@ -103,7 +102,7 @@ class SupabaseService {
         'mastery_percentage': masteryPercentage,
         'estimated_weeks': estimatedWeeks,
         'updated_at': DateTime.now().toIso8601String(),
-      });
+      }, onConflict: 'user_id');
     } catch (e, stack) {
       debugPrint('❌ SupabaseService.saveStudyPath error: $e');
       debugPrintStack(stackTrace: stack);
@@ -239,12 +238,11 @@ class SupabaseService {
           ? currentStreak
           : streak['longest_streak'] as int;
 
-      await _client.from('streaks').upsert({
-        'user_id': _userId,
+      await _client.from('streaks').update({
         'current_streak': currentStreak,
         'longest_streak': longestStreak,
         'last_active_date': today,
-      });
+      }).eq('user_id', _userId!);
     } catch (e, stack) {
       debugPrint('❌ SupabaseService.updateStreak error: $e');
       debugPrintStack(stackTrace: stack);

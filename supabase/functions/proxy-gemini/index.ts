@@ -18,41 +18,40 @@ serve(async (req: Request) => {
       throw new Error('Prompt is required')
     }
 
-    const apiKey = Deno.env.get('GEMINI_API_KEY')
+    // Switch to Groq API Key
+    const apiKey = Deno.env.get('GROQ_API_KEY')
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not configured in Edge Function secrets')
+      throw new Error('GROQ_API_KEY is not configured in Edge Function secrets')
     }
 
-    const model = 'gemini-1.5-flash-latest'
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+    // Using Llama 3 70B Versatile on Groq which is mind-blowingly fast and completely free for MVP
+    const model = 'llama-3.3-70b-versatile'
+    const url = 'https://api.groq.com/openai/v1/chat/completions'
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1500,
-        },
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
       }),
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Gemini API error: ${response.status} ${errorText}`)
+      throw new Error(`Groq API error: ${response.status} ${errorText}`)
     }
 
     const data = await response.json()
-    const candidates = data.candidates
+    const content = data.choices[0]?.message?.content
     
-    if (!candidates || candidates.length === 0) {
-      throw new Error('No generated content found')
+    if (!content) {
+      throw new Error('No generated content found from Groq')
     }
-    
-    const content = candidates[0].content.parts[0].text
 
     return new Response(JSON.stringify({ text: content }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
