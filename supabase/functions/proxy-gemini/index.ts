@@ -23,7 +23,7 @@ serve(async (req: Request) => {
       throw new Error('GEMINI_API_KEY is not configured in Edge Function secrets')
     }
 
-    const model = 'gemini-1.5-flash'
+    const model = 'gemini-1.5-flash-latest'
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
     const response = await fetch(url, {
