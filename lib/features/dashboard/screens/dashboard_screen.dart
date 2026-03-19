@@ -59,55 +59,69 @@ class DashboardScreen extends ConsumerWidget {
 
     final mastery = (studyPath?['mastery_percentage'] as num?)?.toInt() ?? 0;
 
-    return SafeArea(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
         child: CustomScrollView(
           slivers: [
             // Top bar
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${_greeting()},',
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                        Text(
-                          firstName,
-                          style: AppTextStyles.displayMedium,
-                        ),
-                      ],
-                    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
-
-                    // Avatar + settings
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _showSettingsSheet(context, ref),
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.primarySurface,
-                              shape: BoxShape.circle,
+            SliverAppBar(
+              expandedHeight: 140,
+              pinned: true,
+              backgroundColor: AppColors.background,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leading: const SizedBox.shrink(),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${_greeting()},',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.dark.withOpacity(0.6),
                             ),
-                            child: Center(
-                              child: Text(
-                                firstName[0].toUpperCase(),
-                                style: AppTextStyles.h2.copyWith(
-                                  color: AppColors.primary,
+                          ),
+                          Text(
+                            firstName,
+                            style: AppTextStyles.displayMedium,
+                          ),
+                        ],
+                      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0),
+
+                      // Avatar + settings (pushed to bottom of flexible space)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => _showSettingsSheet(context, ref),
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: AppColors.primarySurface,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  firstName[0].toUpperCase(),
+                                  style: AppTextStyles.h2.copyWith(
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 100.ms),
-                  ],
+                        ],
+                      ).animate().fadeIn(delay: 100.ms),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -242,7 +256,8 @@ class DashboardScreen extends ConsumerWidget {
 
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
-        )
+        ),
+      ),
     );
   }
 
