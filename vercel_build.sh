@@ -7,8 +7,13 @@ export PATH="$PATH:$PWD/flutter/bin"
 # Get dependencies
 flutter pub get
 
+# Create dummy .env file to satisfy pubspec.yaml asset requirement
+touch .env
+
+# Run build_runner if needed (uncomment if you add @riverpod or other macros)
+# flutter pub run build_runner build --delete-conflicting-outputs
+
 # Build web - pass env vars as dart-define so String.fromEnvironment works
-# Note: SUPABASE_URL, SUPABASE_ANON_KEY, and GEMINI_API_KEY must be set in Vercel env vars
 flutter build web --release \
   --dart-define=SUPABASE_URL=$SUPABASE_URL \
   --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
